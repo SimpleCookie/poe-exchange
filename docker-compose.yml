@@ -1,0 +1,23 @@
+services:
+  proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile.proxy
+    env_file:
+      - server/.env
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        VITE_EXCHANGE_CLIENT: ${VITE_EXCHANGE_CLIENT:-api}
+        VITE_POE_PROXY_BASE_URL: ${VITE_POE_PROXY_BASE_URL:-/api/poe}
+    env_file:
+      - .env
+    depends_on:
+      - proxy
+    ports:
+      - "8080:80"
+    restart: unless-stopped
