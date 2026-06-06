@@ -1,0 +1,21 @@
+# Frontend nginx — deployed as a standalone Coolify application.
+# POE_PROXY_UPSTREAM is injected at container start via entrypoint.sh (envsubst).
+# It must resolve the backend container on the shared coolify Docker network.
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        VITE_EXCHANGE_CLIENT: api
+        VITE_POE_PROXY_BASE_URL: /api/poe
+    container_name: poe-exchange-frontend
+    environment:
+      - POE_PROXY_UPSTREAM=http://poe-exchange-proxy:8787
+    restart: unless-stopped
+    networks:
+      - coolify
+
+networks:
+  coolify:
+    external: true

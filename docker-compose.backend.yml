@@ -1,0 +1,19 @@
+# Backend proxy — deployed as a standalone Coolify application.
+# The container_name is fixed so the frontend can resolve it via the shared
+# coolify Docker network without needing an external URL.
+services:
+  proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile.proxy
+    container_name: poe-exchange-proxy
+    environment:
+      - POE_PROXY_HOST=0.0.0.0
+      - POE_PROXY_PORT=8787
+    restart: unless-stopped
+    networks:
+      - coolify
+
+networks:
+  coolify:
+    external: true
