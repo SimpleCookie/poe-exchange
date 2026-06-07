@@ -1,5 +1,7 @@
 import type { FastifyPluginAsync } from 'fastify'
 import type { AppDependencies } from '../types'
+import { getUserSession } from '../services/userSession'
+import { readStashCurrencies } from '../services/stashReader'
 import {
   currencyExchangeQuerySchema,
   leaguesQuerySchema,
@@ -49,6 +51,25 @@ export const poeRoutes: FastifyPluginAsync<AppDependencies> = async (app, deps) 
     }
 
     const league = parsedQuery.league ?? ''
+
+    // Use real PoE stash API when the user has authorised the app.
+    const session = getUserSession()
+    if (session) {
+      try {
+        const holdings = await readStashCurrencies(
+          league,
+          session.accessToken,
+          deps.config.userAgent,
+          deps.config.apiBaseUrl,
+        )
+        return { stash: holdings }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err)
+        deps.config.apiBaseUrl && app.log.warn({ err: msg }, 'Real stash read failed, falling back to static config')
+      }
+    }
+
+    // Fall back to the static stash config (env-var or empty).
     const entries = deps.stashConfig[league]
 
     if (!entries) {

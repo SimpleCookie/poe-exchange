@@ -18,6 +18,10 @@ export interface ServerConfig {
   host: string
   clientId: string
   clientSecret: string
+  /** Full callback URL registered with GGG, e.g. https://poe.devgroup.se/oauth/callback */
+  oauthCallbackUrl: string | null
+  /** Frontend origin used to redirect back after the OAuth flow completes */
+  frontendUrl: string
 }
 
 export function loadServerConfig(): ServerConfig {
@@ -41,5 +45,7 @@ export function loadServerConfig(): ServerConfig {
     host: process.env.POE_PROXY_HOST ?? '127.0.0.1',
     clientId,
     clientSecret,
+    oauthCallbackUrl: process.env.POE_OAUTH_CALLBACK_URL ?? null,
+    frontendUrl: process.env.POE_FRONTEND_URL ?? 'http://localhost:5173',
   }
 }

@@ -5,6 +5,7 @@ server {
   root /usr/share/nginx/html;
   index index.html;
 
+  # PoE API proxy — forwards currency exchange and league requests to the backend.
   location = /api/poe {
     proxy_pass ${POE_PROXY_UPSTREAM}/api/poe;
     proxy_http_version 1.1;
@@ -23,6 +24,17 @@ server {
     proxy_set_header X-Forwarded-Proto $scheme;
   }
 
+  # OAuth flow — start, callback, logout, and status are all handled by the backend.
+  location /oauth/ {
+    proxy_pass ${POE_PROXY_UPSTREAM}/oauth/;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  # React SPA — serve index.html for all unmatched paths.
   location / {
     try_files $uri $uri/ /index.html;
   }

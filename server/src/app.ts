@@ -2,12 +2,14 @@ import Fastify, { type FastifyInstance } from 'fastify'
 import { ApiError } from './errors'
 import type { AppDependencies } from './types'
 import { healthRoutes } from './routes/healthRoutes'
+import { oauthRoutes } from './routes/oauthRoutes'
 import { poeRoutes } from './routes/poeRoutes'
 
 export function createApp(deps: AppDependencies): FastifyInstance {
   const app = Fastify({ logger: true })
 
   void app.register(healthRoutes, { config: deps.config })
+  void app.register(oauthRoutes, deps)
   void app.register(poeRoutes, deps)
 
   app.setNotFoundHandler(async (_request, reply) => {
