@@ -37,6 +37,36 @@
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
 
+/* Game selector — sits as its own full-width row above the other controls */
+.game-selector {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.4rem;
+}
+
+.game-btn {
+  padding: 0.35rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: transparent;
+  color: #98a4b8;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.game-btn:hover {
+  background: rgba(152, 216, 255, 0.08);
+  color: #c0d8f0;
+}
+
+.game-btn.active {
+  background: rgba(152, 216, 255, 0.14);
+  color: #98d8ff;
+  border-color: rgba(152, 216, 255, 0.45);
+}
+
 .control-card {
   border: 1px solid var(--line);
   border-radius: 14px;

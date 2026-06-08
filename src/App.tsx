@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import './App.css'
 import { AppHeader } from './components/AppHeader'
 import { FlipOpportunitiesTable } from './components/FlipOpportunitiesTable'
+import { GameSelector } from './components/GameSelector'
 import { InvestmentInputs } from './components/InvestmentInputs'
 import { ItemFilter } from './components/ItemFilter'
 import { LeagueSelector } from './components/LeagueSelector'
@@ -10,7 +11,7 @@ import { useExchangeData } from './hooks/useExchangeData'
 import { calculateOpportunities } from './lib/exchange/calculateOpportunities'
 
 function App() {
-  const { leagues, selectedLeague, setSelectedLeague, markets, stash, dataHour, loading, error } = useExchangeData()
+  const { game, setGame, leagues, selectedLeague, setSelectedLeague, markets, stash, dataHour, loading, error } = useExchangeData()
   const [itemFilter, setItemFilter] = useState('')
   const [chaosBudget, setChaosBudget] = useState(500)
   const [divineBudget, setDivineBudget] = useState(2)
@@ -55,6 +56,8 @@ function App() {
       <AppHeader />
 
       <section className="control-grid">
+        <GameSelector game={game} onChange={setGame} />
+
         <LeagueSelector
           leagues={leagues}
           selectedLeague={selectedLeague}

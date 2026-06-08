@@ -1,4 +1,4 @@
-import type { CurrencyMarketsResult, ExchangeClient } from './exchangeClient'
+import type { CurrencyMarketsResult, ExchangeClient, GameVersion } from './exchangeClient'
 import type { CurrencyExchangeMarket, StashCurrencyHolding } from './types'
 
 interface LeaguesResponse {
@@ -25,18 +25,20 @@ interface StashCurrenciesResponse {
 export class PoeApiExchangeClient implements ExchangeClient {
   private readonly baseUrl = import.meta.env.VITE_POE_PROXY_BASE_URL ?? '/api/poe'
 
-  async getLeagues(): Promise<string[]> {
-    const response = await this.requestJson<LeaguesResponse>('/leagues?type=main&realm=pc')
+  async getLeagues(game: GameVersion): Promise<string[]> {
+    const realm = game === 'poe2' ? 'poe2' : 'pc'
+    const response = await this.requestJson<LeaguesResponse>(`/leagues?type=main&realm=${realm}`)
     return response.leagues
       .map((league) => league.id ?? league.name ?? '')
       .filter((league) => league.length > 0)
   }
 
-  async getCurrencyMarkets(league: string): Promise<CurrencyMarketsResult> {
+  async getCurrencyMarkets(league: string, game: GameVersion): Promise<CurrencyMarketsResult> {
     // The current hour is never complete; request the previous completed hour.
+    const realm = game === 'poe2' ? 'poe2' : 'pc'
     const dataHour = Math.floor((Date.now() - 60 * 60 * 1000) / 3_600_000) * 3600
     const response = await this.requestJson<CurrencyExchangeResponse>(
-      `/currency-exchange?realm=pc&id=${dataHour}`,
+      `/currency-exchange?realm=${realm}&id=${dataHour}`,
     )
 
     const markets: CurrencyExchangeMarket[] = response.markets

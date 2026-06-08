@@ -1,12 +1,14 @@
 import { fixtureLeagues, fixtureMarketsByLeague, fixtureStashByLeague } from '../../data/exchangeFixtures'
-import type { CurrencyMarketsResult, ExchangeClient } from './exchangeClient'
+import type { CurrencyMarketsResult, ExchangeClient, GameVersion } from './exchangeClient'
 
 export class FixtureExchangeClient implements ExchangeClient {
-  async getLeagues(): Promise<string[]> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async getLeagues(_game: GameVersion): Promise<string[]> {
     return fixtureLeagues
   }
 
-  async getCurrencyMarkets(league: string): Promise<CurrencyMarketsResult> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async getCurrencyMarkets(league: string, _game: GameVersion): Promise<CurrencyMarketsResult> {
     return {
       markets: fixtureMarketsByLeague[league] ?? [],
       dataHour: null,
