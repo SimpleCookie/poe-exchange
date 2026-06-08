@@ -23,3 +23,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+*.json filter=none
+# Temp diagnostic JSON files (curl API responses)
+/all_envs.json
+/be.json
+/be_envs.json
+/envs.json
+/envs2.json
+/fe.json
+/fe_status.json
