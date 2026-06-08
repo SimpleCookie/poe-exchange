@@ -2,21 +2,19 @@ server {
   listen 80;
   server_name _;
 
+  # Docker's embedded DNS. Using a $variable in proxy_pass defers hostname
+  # resolution to request time, so nginx starts even when the backend is not
+  # yet available.
+  resolver 127.0.0.11 valid=15s ipv6=off;
+  set $backend "${POE_PROXY_UPSTREAM}";
+
   root /usr/share/nginx/html;
   index index.html;
 
-  # PoE API proxy — forwards currency exchange and league requests to the backend.
-  location = /api/poe {
-    proxy_pass ${POE_PROXY_UPSTREAM}/api/poe;
-    proxy_http_version 1.1;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-  }
-
+  # PoE API proxy — full request URI is forwarded unchanged when proxy_pass
+  # uses a variable with no URI component.
   location /api/poe/ {
-    proxy_pass ${POE_PROXY_UPSTREAM}/api/poe/;
+    proxy_pass $backend;
     proxy_http_version 1.1;
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
@@ -24,9 +22,9 @@ server {
     proxy_set_header X-Forwarded-Proto $scheme;
   }
 
-  # OAuth flow — start, callback, logout, and status are all handled by the backend.
+  # OAuth flow — start, callback, logout, and status handled by the backend.
   location /oauth/ {
-    proxy_pass ${POE_PROXY_UPSTREAM}/oauth/;
+    proxy_pass $backend;
     proxy_http_version 1.1;
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
