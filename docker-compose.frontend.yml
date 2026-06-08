@@ -14,7 +14,7 @@ services:
       - POE_PROXY_UPSTREAM=http://poe-exchange-proxy:8787
     labels:
       - traefik.enable=true
-      - "traefik.http.routers.poe-exchange-frontend.rule=Host(`exchange.poe.devgroup.se`)"
+      - "traefik.http.routers.poe-exchange-frontend.rule=Host(`poe-flip.apps.devgroup.se`)"
       - traefik.http.routers.poe-exchange-frontend.entrypoints=https
       - traefik.http.routers.poe-exchange-frontend.tls=true
       - traefik.http.routers.poe-exchange-frontend.tls.certresolver=letsencrypt
