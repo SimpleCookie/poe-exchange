@@ -12,7 +12,9 @@ services:
       - POE_PROXY_PORT=8787
     restart: unless-stopped
     networks:
-      - coolify
+      coolify:
+        aliases:
+          - poe-exchange-proxy
 
 networks:
   coolify:
