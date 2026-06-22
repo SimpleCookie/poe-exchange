@@ -52,35 +52,40 @@ function App() {
   }, [allOpportunities, itemFilter])
 
   return (
-    <main className="app">
-      <AppHeader />
+    <>
+      <a href="https://devgroup.se/" className="devgroup-back-link">
+        ← DevGroup.se
+      </a>
+      <main className="app">
+        <AppHeader />
 
-      <section className="control-grid">
-        <GameSelector game={game} onChange={setGame} />
+        <section className="control-grid">
+          <GameSelector game={game} onChange={setGame} />
 
-        <LeagueSelector
-          leagues={leagues}
-          selectedLeague={selectedLeague}
-          loading={loading}
-          onChange={setSelectedLeague}
-        />
+          <LeagueSelector
+            leagues={leagues}
+            selectedLeague={selectedLeague}
+            loading={loading}
+            onChange={setSelectedLeague}
+          />
 
-        <ItemFilter selectedItem={itemFilter} itemOptions={itemOptions} onChange={setItemFilter} />
+          <ItemFilter selectedItem={itemFilter} itemOptions={itemOptions} onChange={setItemFilter} />
 
-        <InvestmentInputs
-          chaosBudget={chaosBudget}
-          divineBudget={divineBudget}
-          onChaosBudgetChange={setChaosBudget}
-          onDivineBudgetChange={setDivineBudget}
-        />
-      </section>
+          <InvestmentInputs
+            chaosBudget={chaosBudget}
+            divineBudget={divineBudget}
+            onChaosBudgetChange={setChaosBudget}
+            onDivineBudgetChange={setDivineBudget}
+          />
+        </section>
 
-      {error ? <p className="error">{error}</p> : null}
+        {error ? <p className="error">{error}</p> : null}
 
-      <StashCurrencies stash={stash} />
+        <StashCurrencies stash={stash} />
 
-      <FlipOpportunitiesTable loading={loading} opportunities={opportunities} dataHour={dataHour} />
-    </main>
+        <FlipOpportunitiesTable loading={loading} opportunities={opportunities} dataHour={dataHour} />
+      </main>
+    </>
   )
 }
 
