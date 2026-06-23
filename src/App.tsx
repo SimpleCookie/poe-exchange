@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import './App.css'
+import { BackLink } from './components/BackLink'
 import { AppHeader } from './components/AppHeader'
 import { FlipOpportunitiesTable } from './components/FlipOpportunitiesTable'
 import { GameSelector } from './components/GameSelector'
@@ -53,9 +54,7 @@ function App() {
 
   return (
     <>
-      <a href="https://devgroup.se/" className="devgroup-back-link">
-        ← DevGroup.se
-      </a>
+      <BackLink />
       <main className="app">
         <AppHeader />
 
