@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync } from 'fastify'
 import type { AppDependencies } from '../types'
 import { getUserSession } from '../services/userSession'
+import { mapLeagues } from '../services/leagueMapper'
 import { readStashCurrencies } from '../services/stashReader'
 import {
   currencyExchangeQuerySchema,
@@ -26,7 +27,8 @@ export const poeRoutes: FastifyPluginAsync<AppDependencies> = async (app, deps) 
       params.set('offset', parsedQuery.offset)
     }
 
-    return await deps.gateway.getLeagues(`?${params.toString()}`)
+    const raw = await deps.gateway.getLeagues(`?${params.toString()}`)
+    return { leagues: mapLeagues(raw) }
   })
 
   app.get('/api/poe/currency-exchange', async (request, reply) => {

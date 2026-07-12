@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { exchangeClient } from '../lib/exchange/exchangeClientInstance'
 import type { GameVersion } from '../lib/exchange/exchangeClient'
+import type { LeagueSummary } from '../lib/exchange/types'
 
 export function useLeagues(game: GameVersion) {
-  const [leagues, setLeagues] = useState<string[]>([])
+  const [leagues, setLeagues] = useState<LeagueSummary[]>([])
   const [selectedLeague, setSelectedLeague] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -22,7 +23,7 @@ export function useLeagues(game: GameVersion) {
         }
 
         setLeagues(response)
-        setSelectedLeague((current) => current || response[0] || '')
+        setSelectedLeague((current) => current || response[0]?.id || '')
       } catch (cause) {
         if (!active) {
           return

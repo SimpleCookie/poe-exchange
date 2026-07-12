@@ -1,8 +1,8 @@
 import type { CurrencyMarketsResult, ExchangeClient, GameVersion } from './exchangeClient'
-import type { CurrencyExchangeMarket, StashCurrencyHolding } from './types'
+import type { CurrencyExchangeMarket, LeagueSummary, StashCurrencyHolding } from './types'
 
 interface LeaguesResponse {
-  leagues: Array<{ id?: string; name?: string }>
+  leagues: LeagueSummary[]
 }
 
 interface CurrencyExchangeResponse {
@@ -25,12 +25,10 @@ interface StashCurrenciesResponse {
 export class PoeApiExchangeClient implements ExchangeClient {
   private readonly baseUrl = import.meta.env.VITE_POE_PROXY_BASE_URL ?? '/api/poe'
 
-  async getLeagues(game: GameVersion): Promise<string[]> {
+  async getLeagues(game: GameVersion): Promise<LeagueSummary[]> {
     const realm = game === 'poe2' ? 'poe2' : 'pc'
     const response = await this.requestJson<LeaguesResponse>(`/leagues?type=main&realm=${realm}`)
     return response.leagues
-      .map((league) => league.id ?? league.name ?? '')
-      .filter((league) => league.length > 0)
   }
 
   async getCurrencyMarkets(league: string, game: GameVersion): Promise<CurrencyMarketsResult> {

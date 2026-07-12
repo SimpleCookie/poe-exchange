@@ -1,6 +1,13 @@
-import type { CurrencyExchangeMarket, StashCurrencyHolding } from '../lib/exchange/types'
+import type { CurrencyExchangeMarket, LeagueSummary, StashCurrencyHolding } from '../lib/exchange/types'
 
-export const fixtureLeagues = ['Settlers', 'Standard']
+export const fixtureLeagues: LeagueSummary[] = [
+  { id: 'Settlers', baseId: 'Settlers', startAt: '2026-06-01T00:00:00Z', hardcore: false, ssf: false },
+  { id: 'Hardcore Settlers', baseId: 'Settlers', startAt: '2026-06-01T00:00:00Z', hardcore: true, ssf: false },
+  { id: 'SSF Settlers', baseId: 'Settlers', startAt: '2026-06-01T00:00:00Z', hardcore: false, ssf: true },
+  { id: 'HC SSF Settlers', baseId: 'Settlers', startAt: '2026-06-01T00:00:00Z', hardcore: true, ssf: true },
+  { id: 'Standard', baseId: 'Standard', startAt: null, hardcore: false, ssf: false },
+  { id: 'Hardcore', baseId: 'Standard', startAt: null, hardcore: true, ssf: false },
+]
 
 export const fixtureMarketsByLeague: Record<string, CurrencyExchangeMarket[]> = {
   Settlers: [

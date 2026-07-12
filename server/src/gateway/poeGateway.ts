@@ -13,7 +13,12 @@ interface ApiResponse {
 }
 
 export interface LeaguesResponse {
-  leagues: Array<{ id?: string; name?: string }>
+  leagues: Array<{
+    id?: string
+    name?: string
+    startAt?: string | null
+    rules?: Array<{ id?: string; name?: string }>
+  }>
 }
 
 export interface CurrencyExchangeResponse {

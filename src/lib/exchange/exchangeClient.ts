@@ -1,4 +1,4 @@
-import type { CurrencyExchangeMarket, StashCurrencyHolding } from './types'
+import type { CurrencyExchangeMarket, LeagueSummary, StashCurrencyHolding } from './types'
 
 export type GameVersion = 'poe1' | 'poe2'
 
@@ -9,7 +9,7 @@ export interface CurrencyMarketsResult {
 }
 
 export interface ExchangeClient {
-  getLeagues(game: GameVersion): Promise<string[]>
+  getLeagues(game: GameVersion): Promise<LeagueSummary[]>
   getCurrencyMarkets(league: string, game: GameVersion): Promise<CurrencyMarketsResult>
   getStashCurrencies(league: string): Promise<StashCurrencyHolding[]>
 }

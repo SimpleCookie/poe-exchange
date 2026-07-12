@@ -8,6 +8,15 @@ export interface CurrencyExchangeMarket {
   highestStock: Record<string, number>
 }
 
+export interface LeagueSummary {
+  id: string
+  /** League name with known Hardcore/SSF prefixes stripped, shared by all mode variants. */
+  baseId: string
+  startAt: string | null
+  hardcore: boolean
+  ssf: boolean
+}
+
 export interface StashCurrencyHolding {
   league: string
   currency: string
