@@ -10,6 +10,7 @@ services:
     environment:
       - POE_PROXY_HOST=0.0.0.0
       - POE_PROXY_PORT=8787
+      - POE_SESSION_COOKIE_DOMAIN=devgroup.se
     restart: unless-stopped
     networks:
       coolify:

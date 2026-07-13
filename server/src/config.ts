@@ -22,6 +22,14 @@ export interface ServerConfig {
   oauthCallbackUrl: string | null
   /** Frontend origin used to redirect back after the OAuth flow completes */
   frontendUrl: string
+  /**
+   * Optional cookie Domain attribute for the session cookie, e.g. "devgroup.se".
+   * Required when the frontend and backend are served from different subdomains, so the
+   * session cookie set during /oauth/start is still present when PoE redirects the browser
+   * to the backend's own /oauth/callback URL. Leave unset when frontend and backend share
+   * the exact same host.
+   */
+  sessionCookieDomain: string | null
 }
 
 export function loadServerConfig(): ServerConfig {
@@ -47,5 +55,6 @@ export function loadServerConfig(): ServerConfig {
     clientSecret,
     oauthCallbackUrl: process.env.POE_OAUTH_CALLBACK_URL ?? null,
     frontendUrl: process.env.POE_FRONTEND_URL ?? 'http://localhost:5173',
+    sessionCookieDomain: process.env.POE_SESSION_COOKIE_DOMAIN ?? null,
   }
 }

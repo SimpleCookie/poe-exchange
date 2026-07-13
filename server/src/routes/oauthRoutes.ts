@@ -1,11 +1,20 @@
 import crypto from 'node:crypto'
 import type { FastifyPluginAsync } from 'fastify'
 import type { AppDependencies } from '../types'
-import { clearUserSession, isAuthenticated, setUserSession } from '../services/userSession'
+import {
+  clearUserSession,
+  createSessionId,
+  isAuthenticated,
+  SESSION_COOKIE_NAME,
+  setUserSession,
+} from '../services/userSession'
 
 const POE_AUTHORIZE_URL = 'https://www.pathofexile.com/oauth/authorize'
 const POE_TOKEN_URL = 'https://www.pathofexile.com/oauth/token'
 const ACCOUNT_SCOPE = 'account:stashes'
+
+/** Matches the session's idle TTL in userSession.ts so the cookie doesn't outlive the session. */
+const SESSION_COOKIE_MAX_AGE_SECONDS = 24 * 60 * 60
 
 interface PendingAuth {
   codeVerifier: string
@@ -53,12 +62,25 @@ export const oauthRoutes: FastifyPluginAsync<AppDependencies> = async (app, deps
   }
 
   /** GET /oauth/start — redirects the browser to PoE's authorization page. */
-  app.get('/oauth/start', async (_request, reply) => {
+  app.get('/oauth/start', async (request, reply) => {
     const codeVerifier = generateCodeVerifier()
     const codeChallenge = generateCodeChallenge(codeVerifier)
     const state = generateState()
 
     pendingAuths.set(state, { codeVerifier, createdAt: Date.now() })
+
+    // Ensure this browser has a session id before starting the handshake so the callback
+    // (a separate request, once the user returns from PoE, possibly on a different
+    // subdomain — see POE_SESSION_COOKIE_DOMAIN) can attach the token to it.
+    const sessionId = request.cookies[SESSION_COOKIE_NAME] ?? createSessionId()
+    void reply.setCookie(SESSION_COOKIE_NAME, sessionId, {
+      httpOnly: true,
+      secure: request.protocol === 'https',
+      sameSite: 'lax',
+      path: '/',
+      domain: config.sessionCookieDomain ?? undefined,
+      maxAge: SESSION_COOKIE_MAX_AGE_SECONDS,
+    })
 
     const params = new URLSearchParams({
       client_id: config.clientId,
@@ -96,6 +118,14 @@ export const oauthRoutes: FastifyPluginAsync<AppDependencies> = async (app, deps
 
     pendingAuths.delete(state)
 
+    const sessionId = request.cookies[SESSION_COOKIE_NAME]
+    if (!sessionId) {
+      app.log.warn('OAuth callback received without a session cookie')
+      return reply.redirect(
+        `${config.frontendUrl}/?oauth_error=${encodeURIComponent('Missing session — please retry sign-in')}`,
+      )
+    }
+
     // Exchange the authorization code for an access token server-side.
     // The client_secret never leaves the server.
     const body = new URLSearchParams({
@@ -132,7 +162,7 @@ export const oauthRoutes: FastifyPluginAsync<AppDependencies> = async (app, deps
     }
 
     const expiresIn = typeof tokenData.expires_in === 'number' ? tokenData.expires_in : null
-    setUserSession({
+    setUserSession(sessionId, {
       accessToken: tokenData.access_token,
       scope: typeof tokenData.scope === 'string' ? tokenData.scope : ACCOUNT_SCOPE,
       expiresAt: expiresIn !== null ? Date.now() + expiresIn * 1000 : null,
@@ -142,14 +172,18 @@ export const oauthRoutes: FastifyPluginAsync<AppDependencies> = async (app, deps
     return reply.redirect(`${config.frontendUrl}/?oauth_success=1`)
   })
 
-  /** GET /oauth/logout — clears the in-memory user session. */
-  app.get('/oauth/logout', async (_request, reply) => {
-    clearUserSession()
+  /** GET /oauth/logout — clears this browser's session. */
+  app.get('/oauth/logout', async (request, reply) => {
+    clearUserSession(request.cookies[SESSION_COOKIE_NAME])
+    void reply.clearCookie(SESSION_COOKIE_NAME, {
+      path: '/',
+      domain: config.sessionCookieDomain ?? undefined,
+    })
     return reply.redirect(config.frontendUrl)
   })
 
-  /** GET /oauth/status — returns whether a user session is active (used by the UI). */
-  app.get('/oauth/status', async () => {
-    return { authenticated: isAuthenticated() }
+  /** GET /oauth/status — returns whether this browser's session is active (used by the UI). */
+  app.get('/oauth/status', async (request) => {
+    return { authenticated: isAuthenticated(request.cookies[SESSION_COOKIE_NAME]) }
   })
 }

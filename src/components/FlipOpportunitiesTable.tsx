@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import type { FlipOpportunity } from '../lib/exchange/types'
 
 type SortKey = 'roiPercent' | 'estimatedProfitDivines' | 'hourlyVolumeReceive' | 'spreadPerUnit'
@@ -27,6 +27,41 @@ function formatDataHour(ts: number): string {
   return `${yyyy}-${mo}-${dd} ${hh}:${mm} UTC`
 }
 
+/**
+ * A new hourly digest becomes available two hours after `dataHour` (see poeApiExchangeClient's
+ * dataHour formula: it always points at the *previous fully completed* hour).
+ */
+function nextUpdateAtMs(dataHour: number | null): number | null {
+  return dataHour !== null ? (dataHour + 2 * 60 * 60) * 1000 : null
+}
+
+function formatCountdown(remainingMs: number): string {
+  const totalSeconds = Math.max(0, Math.floor(remainingMs / 1000))
+  const mm = Math.floor(totalSeconds / 60).toString().padStart(2, '0')
+  const ss = (totalSeconds % 60).toString().padStart(2, '0')
+  return `${mm}:${ss}`
+}
+
+/** Ticks once a second so the caller can render a live mm:ss countdown to `targetMs`. */
+function useCountdownLabel(targetMs: number | null): string | null {
+  const [now, setNow] = useState(() => Date.now())
+
+  useEffect(() => {
+    if (targetMs === null) {
+      return
+    }
+
+    const interval = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(interval)
+  }, [targetMs])
+
+  if (targetMs === null) {
+    return null
+  }
+
+  return formatCountdown(targetMs - now)
+}
+
 export function FlipOpportunitiesTable({
   loading,
   opportunities,
@@ -34,6 +69,7 @@ export function FlipOpportunitiesTable({
 }: FlipOpportunitiesTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>('roiPercent')
   const [sortAsc, setSortAsc] = useState(false)
+  const countdownLabel = useCountdownLabel(nextUpdateAtMs(dataHour))
 
   function handleSort(key: SortKey) {
     if (key === sortKey) {
@@ -68,6 +104,9 @@ export function FlipOpportunitiesTable({
         <h2>Flip Opportunities</h2>
         {dataHour !== null && (
           <span className="data-freshness">Data hour: {formatDataHour(dataHour)}</span>
+        )}
+        {countdownLabel !== null && (
+          <span className="data-freshness">Next update in: {countdownLabel}</span>
         )}
       </div>
 
