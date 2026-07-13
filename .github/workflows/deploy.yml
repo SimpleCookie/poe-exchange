@@ -1,0 +1,18 @@
+name: Deploy to Coolify
+
+# This repo is connected to Coolify as a Public Repository (no GitHub App installed),
+# so Coolify has no webhook to be notified of pushes. This workflow triggers Coolify's
+# deploy API directly instead, redeploying both the frontend and backend apps.
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Coolify deployment (frontend + backend)
+        run: |
+          curl --fail --request GET \
+            "https://deploy.devgroup.se/api/v1/deploy?uuid=od816ghly11m5zhcs9ag86yz,zvlzs2cjyv37n5g6x327rutl" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
