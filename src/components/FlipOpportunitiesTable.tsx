@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
+import dayjs from 'dayjs'
 import type { FlipOpportunity } from '../lib/exchange/types'
 
 type SortKey = 'roiPercent' | 'estimatedProfitDivines' | 'hourlyVolumeReceive' | 'spreadPerUnit'
@@ -18,13 +19,7 @@ const SORT_LABELS: Record<SortKey, string> = {
 }
 
 function formatDataHour(ts: number): string {
-  const date = new Date(ts * 1000)
-  const hh = date.getUTCHours().toString().padStart(2, '0')
-  const mm = date.getUTCMinutes().toString().padStart(2, '0')
-  const yyyy = date.getUTCFullYear()
-  const mo = (date.getUTCMonth() + 1).toString().padStart(2, '0')
-  const dd = date.getUTCDate().toString().padStart(2, '0')
-  return `${yyyy}-${mo}-${dd} ${hh}:${mm} UTC`
+  return dayjs(ts * 1000).format('YYYY-MM-DD HH:mm')
 }
 
 /**
