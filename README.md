@@ -7,6 +7,21 @@ This app supports two modes:
 
 The proxy is required so your OAuth client secret never ships to the browser.
 
+## Run Locally (fixture data, no API keys needed)
+
+The fastest way to run the app locally uses built-in fixture data — no PoE OAuth
+credentials, proxy server, or network access required.
+
+```bash
+npm install
+npm run dev
+```
+
+Then open the printed local URL (typically `http://localhost:5173`). The app
+defaults to `VITE_EXCHANGE_CLIENT=fixture`, so leagues, exchange markets, and
+stash holdings are all served from [`src/data/exchangeFixtures.ts`](src/data/exchangeFixtures.ts)
+instead of the real PoE API.
+
 ## Client Modes
 
 Set `VITE_EXCHANGE_CLIENT`:
@@ -26,6 +41,8 @@ You do not need to rename `.env.local` to `.env` for local Vite development.
 
 ## OAuth Proxy Setup
 
+To run against the real PoE API instead of fixtures, you'll need the OAuth proxy:
+
 1. Copy `server/.env.example` to `server/.env.local`.
 2. Fill in your values:
 	 - `POE_CLIENT_ID`
@@ -33,6 +50,7 @@ You do not need to rename `.env.local` to `.env` for local Vite development.
 	 - `POE_CONTACT` (email or contact URI for User-Agent)
 3. Keep `POE_SCOPE=service:cxapi service:leagues` for this app.
 4. Optionally set `POE_STASH_CURRENCIES_JSON` for your affordability model.
+5. Set `VITE_EXCHANGE_CLIENT=api` in `.env.local` (see [Client Modes](#client-modes) above).
 
 Run both processes:
 
