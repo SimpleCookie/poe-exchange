@@ -2,7 +2,7 @@ import { Fragment, useEffect, useState } from 'react'
 import dayjs from 'dayjs'
 import type { FlipOpportunity } from '../lib/exchange/types'
 
-type SortKey = 'roiPercent' | 'estimatedProfitDivines' | 'hourlyVolumeReceive' | 'spreadPerUnit'
+type SortKey = 'roiPercent' | 'hourlyVolumeReceive' | 'spreadPerUnit'
 
 interface FlipOpportunitiesTableProps {
   loading: boolean
@@ -13,7 +13,6 @@ interface FlipOpportunitiesTableProps {
 
 const SORT_LABELS: Record<SortKey, string> = {
   roiPercent: 'ROI %',
-  estimatedProfitDivines: 'Est. Profit',
   hourlyVolumeReceive: 'Volume',
   spreadPerUnit: 'Spread',
 }
@@ -133,14 +132,11 @@ export function FlipOpportunitiesTable({
                 <th>Market</th>
                 <th>Buy ratio</th>
                 <th>Sell ratio</th>
-                {sortableTh('spreadPerUnit', 'Spread / unit')}
+                {sortableTh('spreadPerUnit', 'Spread')}
                 {sortableTh('roiPercent', 'ROI %')}
                 {sortableTh('hourlyVolumeReceive', 'Vol (hr)')}
                 <th>Stock depth</th>
                 <th>Units</th>
-                <th>Capital</th>
-                {sortableTh('estimatedProfitDivines', 'Est. profit')}
-                <th>Flags</th>
               </tr>
             </thead>
             <tbody>
@@ -170,36 +166,10 @@ export function FlipOpportunitiesTable({
                         : '—'}
                     </td>
                     <td>{item.executableUnits.toLocaleString()}</td>
-                    <td>
-                      {item.totalCapital.toFixed(0)}
-                      <span className="unit-label"> {item.payCurrency}</span>
-                    </td>
-                    <td className="cell-profit">
-                      {item.estimatedProfit.toFixed(1)}
-                      <span className="unit-label"> {item.payCurrency}</span>
-                      {item.estimatedProfitDivines > 0 && (
-                        <span className="profit-divines">
-                          {' '}
-                          ({item.estimatedProfitDivines.toFixed(2)}d)
-                        </span>
-                      )}
-                    </td>
-                    <td className="cell-flags">
-                      {item.isLowVolume && (
-                        <span className="flag flag-warn" title="Low hourly volume">
-                          low vol
-                        </span>
-                      )}
-                      {item.isLowStock && (
-                        <span className="flag flag-warn" title="Shallow stock depth">
-                          low stock
-                        </span>
-                      )}
-                    </td>
                   </tr>
                   <tr className={`row-action${item.executableUnits <= 0 ? ' row-dim' : ''}`}>
                     <td />
-                    <td colSpan={11} className="cell-action">
+                    <td colSpan={8} className="cell-action">
                       {item.recommendedAction}
                     </td>
                   </tr>

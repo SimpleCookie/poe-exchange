@@ -330,6 +330,9 @@
   margin: 0;
   display: grid;
   gap: 0.45rem;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 0.4rem;
 }
 
 .stash li {
