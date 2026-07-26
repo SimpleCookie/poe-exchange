@@ -1,3 +1,4 @@
+import { formatCurrencyLabel } from './currencyDisplay'
 import type { CurrencyExchangeMarket, FlipOpportunity, StashCurrencyHolding } from './types'
 
 export interface InvestmentBudget {
@@ -143,11 +144,13 @@ export function calculateOpportunities(
       if (executableUnits <= 0) {
         recommendedAction = 'Insufficient budget, stock depth, or volume to recommend a trade'
       } else {
+        const payLabel = formatCurrencyLabel(payCurrency)
+        const receiveLabel = formatCurrencyLabel(receiveCurrency)
         recommendedAction =
-          `Buy ${executableUnits} ${receiveCurrency} at ≤${bestBuyRatio.toFixed(1)} ${payCurrency} each` +
-          ` → sell at ≥${bestSellRatio.toFixed(1)} ${payCurrency}` +
-          ` | capital: ${totalCapital.toFixed(0)} ${payCurrency}` +
-          ` | est. profit: ${estimatedProfit.toFixed(1)} ${payCurrency} (${roiPercent.toFixed(1)}% ROI)`
+          `Buy ${executableUnits} ${receiveLabel} at ≤${bestBuyRatio.toFixed(1)} ${payLabel} each` +
+          ` → sell at ≥${bestSellRatio.toFixed(1)} ${payLabel}` +
+          ` | capital: ${totalCapital.toFixed(0)} ${payLabel}` +
+          ` | est. profit: ${estimatedProfit.toFixed(1)} ${payLabel} (${roiPercent.toFixed(1)}% ROI)`
       }
 
       return {

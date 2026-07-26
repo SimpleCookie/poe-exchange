@@ -82,7 +82,13 @@ function App() {
 
         <StashCurrencies stash={stash} />
 
-        <FlipOpportunitiesTable loading={loading} opportunities={opportunities} dataHour={dataHour} />
+        <FlipOpportunitiesTable
+          loading={loading}
+          opportunities={opportunities}
+          dataHour={dataHour}
+          league={selectedLeague}
+          game={game}
+        />
       </main>
     </>
   )

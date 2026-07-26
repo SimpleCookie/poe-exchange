@@ -1,6 +1,9 @@
 import { Fragment, useEffect, useState } from 'react'
 import dayjs from 'dayjs'
+import { Link } from 'react-router-dom'
+import { formatCurrencyLabel } from '../lib/exchange/currencyDisplay'
 import type { FlipOpportunity } from '../lib/exchange/types'
+import type { GameVersion } from '../lib/exchange/exchangeClient'
 
 type SortKey = 'roiPercent' | 'hourlyVolumeReceive' | 'spreadPerUnit'
 
@@ -9,6 +12,8 @@ interface FlipOpportunitiesTableProps {
   opportunities: FlipOpportunity[]
   /** Unix timestamp (seconds) of the hour this data covers. */
   dataHour: number | null
+  league: string
+  game: GameVersion
 }
 
 const SORT_LABELS: Record<SortKey, string> = {
@@ -60,6 +65,8 @@ export function FlipOpportunitiesTable({
   loading,
   opportunities,
   dataHour,
+  league,
+  game,
 }: FlipOpportunitiesTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>('roiPercent')
   const [sortAsc, setSortAsc] = useState(false)
@@ -137,6 +144,7 @@ export function FlipOpportunitiesTable({
                 {sortableTh('hourlyVolumeReceive', 'Vol (hr)')}
                 <th>Stock depth</th>
                 <th>Units</th>
+                <th>Details</th>
               </tr>
             </thead>
             <tbody>
@@ -145,17 +153,17 @@ export function FlipOpportunitiesTable({
                   <tr className={item.executableUnits <= 0 ? 'row-dim' : ''}>
                     <td>{index + 1}</td>
                     <td className="cell-market">
-                      <span className="currency-tag">{item.payCurrency}</span>
+                      <span className="currency-tag">{formatCurrencyLabel(item.payCurrency)}</span>
                       <span className="arrow">→</span>
-                      <span className="currency-tag">{item.receiveCurrency}</span>
+                      <span className="currency-tag">{formatCurrencyLabel(item.receiveCurrency)}</span>
                     </td>
                     <td>
                       {item.bestBuyRatio.toFixed(2)}
-                      <span className="unit-label"> {item.payCurrency}</span>
+                      <span className="unit-label"> {formatCurrencyLabel(item.payCurrency)}</span>
                     </td>
                     <td>
                       {item.bestSellRatio.toFixed(2)}
-                      <span className="unit-label"> {item.payCurrency}</span>
+                      <span className="unit-label"> {formatCurrencyLabel(item.payCurrency)}</span>
                     </td>
                     <td>{item.spreadPerUnit.toFixed(2)}</td>
                     <td className="cell-roi">{item.roiPercent.toFixed(1)}%</td>
@@ -166,10 +174,17 @@ export function FlipOpportunitiesTable({
                         : '—'}
                     </td>
                     <td>{item.executableUnits.toLocaleString()}</td>
+                    <td>
+                      <Link
+                        to={`/trade/${encodeURIComponent(league)}/${encodeURIComponent(item.marketId)}?game=${game}`}
+                      >
+                        View details
+                      </Link>
+                    </td>
                   </tr>
                   <tr className={`row-action${item.executableUnits <= 0 ? ' row-dim' : ''}`}>
                     <td />
-                    <td colSpan={8} className="cell-action">
+                    <td colSpan={9} className="cell-action">
                       {item.recommendedAction}
                     </td>
                   </tr>
