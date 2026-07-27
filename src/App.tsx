@@ -10,10 +10,12 @@ import { LeagueSelector } from './components/LeagueSelector'
 import { StashCurrencies } from './components/StashCurrencies'
 import { useExchangeData } from './hooks/useExchangeData'
 import { calculateOpportunities } from './lib/exchange/calculateOpportunities'
+import { getCurrencyCategory } from './lib/exchange/currencyCategory'
 
 function App() {
   const { game, setGame, leagues, selectedLeague, setSelectedLeague, markets, stash, dataHour, loading, error } = useExchangeData()
   const [itemFilter, setItemFilter] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('')
   const [chaosBudget, setChaosBudget] = useState(500)
   const [divineBudget, setDivineBudget] = useState(2)
 
@@ -32,17 +34,35 @@ function App() {
     return Array.from(currencies).sort((left, right) => left.localeCompare(right))
   }, [markets])
 
+  const categoryOptions = useMemo(() => {
+    const categories = new Set<string>()
+    for (const item of itemOptions) {
+      categories.add(getCurrencyCategory(item))
+    }
+
+    return Array.from(categories).sort((left, right) => left.localeCompare(right))
+  }, [itemOptions])
+
   const allOpportunities = useMemo(
     () => calculateOpportunities(selectedLeague, markets, stash, { chaos: chaosBudget, divine: divineBudget }),
     [selectedLeague, markets, stash, chaosBudget, divineBudget],
   )
 
   const opportunities = useMemo(() => {
-    if (!itemFilter) {
-      return allOpportunities
-    }
-
     return allOpportunities.filter((item) => {
+      if (categoryFilter) {
+        const matchesCategory =
+          getCurrencyCategory(item.payCurrency) === categoryFilter ||
+          getCurrencyCategory(item.receiveCurrency) === categoryFilter
+        if (!matchesCategory) {
+          return false
+        }
+      }
+
+      if (!itemFilter) {
+        return true
+      }
+
       const marketLabel = `${item.payCurrency}|${item.receiveCurrency}`.toLowerCase()
       return (
         item.payCurrency.toLowerCase().includes(itemFilter) ||
@@ -50,7 +70,7 @@ function App() {
         marketLabel.includes(itemFilter)
       )
     })
-  }, [allOpportunities, itemFilter])
+  }, [allOpportunities, itemFilter, categoryFilter])
 
   return (
     <>
@@ -68,7 +88,14 @@ function App() {
             onChange={setSelectedLeague}
           />
 
-          <ItemFilter selectedItem={itemFilter} itemOptions={itemOptions} onChange={setItemFilter} />
+          <ItemFilter
+            selectedItem={itemFilter}
+            itemOptions={itemOptions}
+            onChange={setItemFilter}
+            selectedCategory={categoryFilter}
+            categoryOptions={categoryOptions}
+            onCategoryChange={setCategoryFilter}
+          />
 
           <InvestmentInputs
             chaosBudget={chaosBudget}
